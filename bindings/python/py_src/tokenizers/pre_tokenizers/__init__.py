@@ -7,6 +7,7 @@ ByteLevel = pre_tokenizers.ByteLevel
 CharDelimiterSplit = pre_tokenizers.CharDelimiterSplit
 Digits = pre_tokenizers.Digits
 FixedLength = pre_tokenizers.FixedLength
+Grapheme = pre_tokenizers.Grapheme
 Metaspace = pre_tokenizers.Metaspace
 PreTokenizer = pre_tokenizers.PreTokenizer
 Punctuation = pre_tokenizers.Punctuation

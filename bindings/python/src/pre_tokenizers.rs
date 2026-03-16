@@ -13,6 +13,7 @@ use tk::pre_tokenizers::byte_level::ByteLevel;
 use tk::pre_tokenizers::delimiter::CharDelimiterSplit;
 use tk::pre_tokenizers::digits::Digits;
 use tk::pre_tokenizers::fixed_length::FixedLength;
+use tk::pre_tokenizers::grapheme::Grapheme;
 use tk::pre_tokenizers::metaspace::{Metaspace, PrependScheme};
 use tk::pre_tokenizers::punctuation::Punctuation;
 use tk::pre_tokenizers::split::Split;
@@ -98,6 +99,10 @@ impl PyPreTokenizer {
                         }
                         PreTokenizerWrapper::FixedLength(_) => {
                             Py::new(py, (PyFixedLength {}, base))?
+                                .into_any()
+                        }
+                        PreTokenizerWrapper::Grapheme(_) => {
+                            Py::new(py, (PyGrapheme {}, base))?
                                 .into_any()
                         }
                     },
@@ -777,6 +782,35 @@ impl PyFixedLength {
     }
 }
 
+/// This pre-tokenizer splits text into individual Unicode grapheme clusters.
+///
+/// It correctly handles multi-codepoint characters such as emoji with skin tones,
+/// combining diacritics, and other complex sequences, treating each grapheme cluster
+/// as a single token.
+///
+/// Example:
+///     Use the `Grapheme` function as shown below::
+///
+///         ```python
+///         from tokenizers.pre_tokenizers import Grapheme
+///
+///         pre_tokenizer = Grapheme()
+///         pre_tokenizer.pre_tokenize_str("café")
+///         # [('c', (0, 1)), ('a', (1, 2)), ('f', (2, 3)), ('é', (3, 4))]
+///         pre_tokenizer.pre_tokenize_str("hi👋🏽!")
+///         # [('h', (0, 1)), ('i', (1, 2)), ('👋🏽', (2, 4)), ('!', (4, 5))]
+///         ```
+#[pyclass(extends=PyPreTokenizer, module = "tokenizers.pre_tokenizers", name = "Grapheme")]
+pub struct PyGrapheme {}
+#[pymethods]
+impl PyGrapheme {
+    #[new]
+    #[pyo3(text_signature = "(self)")]
+    fn new() -> (Self, PyPreTokenizer) {
+        (PyGrapheme {}, Grapheme.into())
+    }
+}
+
 /// This pre-tokenizer splits on characters that belong to different language family
 /// It roughly follows https://github.com/google/sentencepiece/blob/master/data/Scripts.txt
 /// Actually Hiragana and Katakana are fused with Han, and 0x30FC is Han too.
@@ -966,6 +1000,8 @@ pub mod pre_tokenizers {
     pub use super::PyDigits;
     #[pymodule_export]
     pub use super::PyFixedLength;
+    #[pymodule_export]
+    pub use super::PyGrapheme;
     #[pymodule_export]
     pub use super::PyMetaspace;
     #[pymodule_export]

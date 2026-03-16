@@ -67,6 +67,11 @@ class FixedLength:
     @length.setter
     def length(self, /, length: int) -> None: ...
 
+class Grapheme:
+    def __new__(cls, /) -> None:
+        """Create and return a new object.  See help(type) for accurate signature."""
+        ...
+
 class Metaspace:
     def __new__(cls, /, replacement: str = "▁", prepend_scheme: str = ..., split: bool = True) -> None:
         """Create and return a new object.  See help(type) for accurate signature."""
